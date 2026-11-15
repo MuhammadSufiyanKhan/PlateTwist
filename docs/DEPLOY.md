@@ -10,7 +10,13 @@ Three pieces: MongoDB Atlas (database), Render (API), Vercel (web). Nothing depl
 4. _Connect → Drivers_ → copy the URI and add a database name, e.g.
    `mongodb+srv://USER:PASS@cluster0.xxxx.mongodb.net/specials_saver?retryWrites=true&w=majority`
 
-## 2. API on Render
+## 2. API on Vercel (no card needed; alternative to Render)
+1. Vercel → *Add New Project* → import this repo, **Root Directory** `apps/api` (framework: Other). `apps/api/vercel.json` and `apps/api/api/index.js` handle build and routing.
+2. Env vars: `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `CORS_ORIGINS`, `AI_PROVIDER=mock` (+ optional AI vars below).
+3. Deploy; `https://<api-project>.vercel.app/health` must return `{"status":"ok"}`.
+4. Use `https://<api-project>.vercel.app/api/v1` as the web app's `VITE_API_URL`.
+
+## 2b. API on Render (alternative)
 
 1. Render dashboard → _New → Blueprint_ → pick this repo (it reads `render.yaml`).
 2. Fill the prompted env vars:
