@@ -15,9 +15,14 @@ export const loadDemo = wrap(async (req, res) => {
       );
     // Explicit replace: clears THIS brand's catalog, stock, specials and waste only.
     // Users, outlets and brand settings are kept.
-    await Promise.all(
-      [Special, WasteEvent, Batch, Dish, Ingredient, AiUsage].map((m) => m.deleteMany({ brandId })),
-    );
+    await Promise.all([
+      Special.deleteMany({ brandId }),
+      WasteEvent.deleteMany({ brandId }),
+      Batch.deleteMany({ brandId }),
+      Dish.deleteMany({ brandId }),
+      Ingredient.deleteMany({ brandId }),
+      AiUsage.deleteMany({ brandId }),
+    ]);
   }
   const outlets = await Outlet.find({ brandId }).sort({ _id: 1 }).limit(2).lean();
   const a = outlets[0]?._id;
