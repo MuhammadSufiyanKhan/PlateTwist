@@ -27,7 +27,10 @@ export class OpenAiCompatProvider implements AiProvider {
       }),
       signal: AbortSignal.timeout(30_000),
     });
-    if (!res.ok) throw new Error(`AI request failed with status ${res.status}`);
+    if (!res.ok) {
+      const detail = (await res.text().catch(() => '')).replace(/\s+/g, ' ').slice(0, 300);
+      throw new Error(`AI request failed with status ${res.status}: ${detail}`);
+    }
     const body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
     const text = body.choices?.[0]?.message?.content;
     if (!text) throw new Error('AI returned no content');

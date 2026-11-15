@@ -171,6 +171,26 @@ describe('suggestions endpoint', () => {
     expect(calls).toBe(2);
   });
 
+  it('falls back to the built-in generator when enabled and the hosted AI fails', async () => {
+    setAiProvider({
+      name: 'broken',
+      suggestSpecials: async () => {
+        throw new Error('AI request failed with status 404: model not found');
+      },
+    });
+    expect((await suggest()).status).toBe(502); // off by default
+    config.AI_FALLBACK_TO_MOCK = true;
+    try {
+      const r = await suggest();
+      expect(r.status).toBe(200);
+      expect(r.body.fallback).toBe(true);
+      expect(r.body.provider).toBe('mock');
+      expect(r.body.cards.length).toBeGreaterThanOrEqual(3);
+    } finally {
+      config.AI_FALLBACK_TO_MOCK = false;
+    }
+  });
+
   it('never sends expired stock to the AI', async () => {
     let seen: AiInput | null = null;
     await Batch.updateMany(

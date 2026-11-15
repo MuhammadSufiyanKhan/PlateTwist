@@ -12,6 +12,10 @@ const schema = z.object({
   AI_MODEL: z.string().default(''),
   AI_API_KEY: z.string().default(''),
   AI_BASE_URL: z.string().default(''),
+  AI_FALLBACK_TO_MOCK: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
   AI_DAILY_CAP_PER_BRAND: z.coerce.number().int().positive().default(50),
 });
 

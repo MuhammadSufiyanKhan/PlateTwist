@@ -53,7 +53,10 @@ export class GeminiProvider implements AiProvider {
       }),
       signal: AbortSignal.timeout(30_000),
     });
-    if (!res.ok) throw new Error(`Gemini request failed with status ${res.status}`);
+    if (!res.ok) {
+      const detail = (await res.text().catch(() => '')).replace(/\s+/g, ' ').slice(0, 300);
+      throw new Error(`Gemini request failed with status ${res.status}: ${detail}`);
+    }
     const body = (await res.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
     };

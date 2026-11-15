@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import { getAiProvider } from '../ai/index.js';
+import { MockProvider } from '../ai/mock.js';
 import { aiOutputSchema, type AiInput } from '../ai/types.js';
 import { validateSuggestions, type ValidSuggestion } from '../ai/validate.js';
 import { config } from '../config.js';
@@ -45,7 +46,12 @@ export async function suggestSpecials(
   user: AuthUser,
   outletId: Types.ObjectId,
   opts: { batchIds?: string[]; limit?: number } = {},
-): Promise<{ cards: SuggestionCard[]; provider: string; basedOn: string[] }> {
+): Promise<{
+  cards: SuggestionCard[];
+  provider: string;
+  basedOn: string[];
+  fallback: boolean;
+}> {
   const board = await atRiskBoard(user, outletId); // asserts outlet, sweeps, excludes expired
   let rows = board;
   if (opts.batchIds && opts.batchIds.length > 0) {
@@ -130,6 +136,18 @@ export async function suggestSpecials(
       logger.warn({ attempt, msg: err instanceof Error ? err.message : 'error' }, 'AI call failed');
     }
   }
+  let usedProvider = provider.name;
+  let fallback = false;
+  if (valid.length === 0 && config.AI_FALLBACK_TO_MOCK && provider.name !== 'mock') {
+    try {
+      const parsed = aiOutputSchema.safeParse(await new MockProvider().suggestSpecials(input));
+      if (parsed.success) valid = validateSuggestions(parsed.data, ctx).valid.slice(0, 5);
+      usedProvider = 'mock';
+      fallback = valid.length > 0;
+    } catch {
+      /* fall through to the error below */
+    }
+  }
   if (valid.length === 0)
     throw new AppError(
       502,
@@ -162,5 +180,5 @@ export async function suggestSpecials(
       savedValue: computed.savedValueIfAll,
     });
   }
-  return { cards, provider: provider.name, basedOn: rows.map((r) => r.batchId) };
+  return { cards, provider: usedProvider, basedOn: rows.map((r) => r.batchId), fallback };
 }

@@ -137,6 +137,15 @@ export function AtRiskPage() {
           <h2 id="sug-h" className="text-lg font-bold">
             Suggested specials
           </h2>
+          {suggest.data.fallback && (
+            <p
+              role="status"
+              className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+            >
+              The hosted AI service did not respond, so these ideas come from the built-in generator
+              instead.
+            </p>
+          )}
           <p className="mb-3 text-sm text-ink-500">
             Ideas come from the {suggest.data.provider} provider; every number below is calculated
             by the app from your costs and stock. {ALLERGEN_NOTICE}

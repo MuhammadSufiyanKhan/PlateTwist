@@ -129,6 +129,7 @@ export interface Suggestions {
   cards: SuggestionCard[];
   provider: string;
   basedOn: string[];
+  fallback?: boolean;
 }
 
 export interface WindowSummary {
