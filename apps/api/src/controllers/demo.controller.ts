@@ -1,16 +1,24 @@
 import { conflict } from '../errors.js';
 import { wrap } from '../middleware/core.js';
-import { Ingredient, Outlet } from '../models/index.js';
+import { AiUsage, Batch, Dish, Ingredient, Outlet, Special, WasteEvent } from '../models/index.js';
 import { populateDemo } from '../seed/seed.js';
 
-/** Owner-only: fills an EMPTY brand with demo data. Never deletes or overwrites anything. */
+/** Owner-only: loads demo data into a brand. Without ?replace=true it only works on an empty brand. */
 export const loadDemo = wrap(async (req, res) => {
   const { brandId } = req.user;
-  if (await Ingredient.exists({ brandId }))
-    throw conflict(
-      'Demo data can only be loaded into a brand with no ingredients yet',
-      'NOT_EMPTY',
+  const replace = req.query.replace === 'true';
+  if (await Ingredient.exists({ brandId })) {
+    if (!replace)
+      throw conflict(
+        'Demo data can only be loaded into a brand with no ingredients yet',
+        'NOT_EMPTY',
+      );
+    // Explicit replace: clears THIS brand's catalog, stock, specials and waste only.
+    // Users, outlets and brand settings are kept.
+    await Promise.all(
+      [Special, WasteEvent, Batch, Dish, Ingredient, AiUsage].map((m) => m.deleteMany({ brandId })),
     );
+  }
   const outlets = await Outlet.find({ brandId }).sort({ _id: 1 }).limit(2).lean();
   const a = outlets[0]?._id;
   if (!a) throw conflict('Create an outlet first', 'NO_OUTLET');

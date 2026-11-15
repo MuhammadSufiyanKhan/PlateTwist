@@ -105,7 +105,8 @@ export function AtRiskPage() {
                 <div className="mt-2 flex items-end justify-between gap-3 pl-[3.25rem]">
                   <p className="text-sm text-ink-500">
                     {qtyLabel(r.qtyRemaining, r.baseUnit)} free
-                    {r.qtyAllocated > 0 && ` · ${qtyLabel(r.qtyAllocated, r.baseUnit)} in specials`}{' '}
+                    {r.qtyAllocated > 0 &&
+                      ` · ${qtyLabel(r.qtyAllocated, r.baseUnit)} in specials`}{' '}
                     · {r.dateType === 'USE_BY' ? 'Use by' : 'Best before'} {r.expiresOn} (
                     {daysLabel(r.daysLeft)})
                   </p>

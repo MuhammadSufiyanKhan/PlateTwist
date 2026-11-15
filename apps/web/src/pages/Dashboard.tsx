@@ -118,7 +118,7 @@ export function DashboardPage() {
                       <button
                         className="btn-primary"
                         disabled={demo.isPending}
-                        onClick={() => demo.mutate()}
+                        onClick={() => demo.mutate(false)}
                       >
                         {demo.isPending ? 'Loading demo data…' : 'Load demo data'}
                       </button>

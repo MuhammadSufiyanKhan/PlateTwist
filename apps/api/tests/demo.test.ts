@@ -26,6 +26,25 @@ describe('demo data loader', () => {
     expect((await request(app).post('/api/v1/demo-data').set(auth(w.staffToken))).status).toBe(403);
   });
 
+  it('replace=true clears only this brand and reloads demo data', async () => {
+    const other = await makeWorld('o');
+    await makeIngredient(other.token, 'Keep me', 1);
+    await makeIngredient(w.token, 'Old', 1);
+    expect(
+      (await request(app).post('/api/v1/demo-data?replace=true').set(auth(w.staffToken))).status,
+    ).toBe(403);
+    expect(
+      (await request(app).post('/api/v1/demo-data?replace=true').set(auth(w.token))).status,
+    ).toBe(201);
+    const names = (
+      await request(app).get('/api/v1/ingredients?limit=200').set(auth(w.token))
+    ).body.items.map((i: { name: string }) => i.name);
+    expect(names).not.toContain('Old');
+    expect(names).toContain('Chicken thigh');
+    const o = await request(app).get('/api/v1/ingredients').set(auth(other.token));
+    expect(o.body.items.map((i: { name: string }) => i.name)).toEqual(['Keep me']);
+  });
+
   it("does not touch another brand's data", async () => {
     const other = await makeWorld('n');
     await request(app).post('/api/v1/demo-data').set(auth(w.token));

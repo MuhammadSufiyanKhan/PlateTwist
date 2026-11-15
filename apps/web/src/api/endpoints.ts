@@ -83,7 +83,8 @@ export const api = {
   suggest: (outletId: string, batchIds: string[]) =>
     request<Suggestions>('POST', `/outlets/${outletId}/suggestions`, { body: { batchIds } }),
 
-  loadDemo: () => request<{ ok: boolean }>('POST', '/demo-data'),
+  loadDemo: (replace = false) =>
+    request<{ ok: boolean }>('POST', '/demo-data', { query: replace ? { replace: 'true' } : {} }),
   dashboard: (outletId?: string) =>
     request<Dashboard>('GET', '/dashboard', { query: { outletId } }),
 };

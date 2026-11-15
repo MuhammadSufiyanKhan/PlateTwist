@@ -31,16 +31,14 @@ describe('login page', () => {
   it('shows the server error message on failed login', async () => {
     vi.stubGlobal(
       'fetch',
-      vi
-        .fn()
-        .mockResolvedValue(
-          new Response(
-            JSON.stringify({
-              error: { code: 'INVALID_CREDENTIALS', message: 'Wrong email or password' },
-            }),
-            { status: 401 },
-          ),
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            error: { code: 'INVALID_CREDENTIALS', message: 'Wrong email or password' },
+          }),
+          { status: 401 },
         ),
+      ),
     );
     wrap();
     await userEvent.type(screen.getByLabelText('Email'), 'a@b.co');
