@@ -196,8 +196,6 @@ const DISHES: [string, number, [string, number][]][] = [
 const HISTORY_DAYS = 60;
 
 export async function seedDemo(opts: { historyDays?: number; seed?: number } = {}): Promise<void> {
-  const days = opts.historyDays ?? HISTORY_DAYS;
-  const rng = makeRng(opts.seed ?? 20260301);
   await Promise.all(Object.values(mongoose.models).map((m) => m.deleteMany({})));
   await Promise.all(Object.values(mongoose.models).map((m) => m.syncIndexes()));
 
@@ -236,6 +234,28 @@ export async function seedDemo(opts: { historyDays?: number; seed?: number } = {
     },
   ]);
 
+  await populateDemo(
+    brand._id,
+    { id: owner!._id, outletIds: [downtown!._id, harbour!._id] },
+    downtown!._id,
+    harbour!._id,
+    opts,
+  );
+}
+
+/** Adds demo catalog, stock and history to an existing brand (never deletes anything). */
+export async function populateDemo(
+  brandId: Types.ObjectId,
+  owner: { id: Types.ObjectId; outletIds: Types.ObjectId[] },
+  outletA: Types.ObjectId,
+  outletB: Types.ObjectId,
+  opts: { historyDays?: number; seed?: number } = {},
+): Promise<void> {
+  const days = opts.historyDays ?? HISTORY_DAYS;
+  const rng = makeRng(opts.seed ?? 20260301);
+  const brand = { _id: brandId };
+  const downtown = { _id: outletA };
+  const harbour = { _id: outletB };
   const ings = await Ingredient.insertMany(
     INGREDIENTS.map(([name, baseUnit, costPerBaseUnit, isStaple]) => ({
       brandId: brand._id,
@@ -272,7 +292,7 @@ export async function seedDemo(opts: { historyDays?: number; seed?: number } = {
   const wasteDocs: object[] = [];
   for (let d = days; d >= 1; d--) {
     const progress = 1 - d / days; // 0 = oldest, 1 = yesterday
-    for (const outlet of [downtown!, harbour!]) {
+    for (const outlet of [downtown, harbour]) {
       if (!rng.chance(0.8)) continue;
       const dish = dishes[rng.int(0, dishes.length - 1)]!;
       const items = dish.recipe.map((r) => ({
@@ -387,7 +407,7 @@ export async function seedDemo(opts: { historyDays?: number; seed?: number } = {
   await Batch.insertMany(
     cur.map(([o, n, qty, dd, dateType]) => ({
       brandId: brand._id,
-      outletId: o!._id,
+      outletId: o._id,
       ingredientId: ing(n)._id,
       qtyRemaining: qty,
       expiresOn: at(dd),
@@ -397,14 +417,14 @@ export async function seedDemo(opts: { historyDays?: number; seed?: number } = {
 
   // ---- one live special at Downtown, created and activated through the real service
   const ownerUser: AuthUser = {
-    id: owner!._id,
+    id: owner.id,
     brandId: brand._id,
     role: 'OWNER',
-    outletIds: [downtown!._id, harbour!._id],
+    outletIds: owner.outletIds,
   };
   const chickenBowl = dishes.find((d) => d.name === 'Chicken rice bowl')!;
   const live = await createSpecial(ownerUser, {
-    outletId: downtown!._id,
+    outletId: downtown._id,
     dishId: chickenBowl._id,
     portionsPlanned: 12,
     source: 'CATALOG',

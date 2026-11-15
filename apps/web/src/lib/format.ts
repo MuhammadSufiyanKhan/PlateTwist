@@ -16,7 +16,8 @@ export function makeMoney(currency: string) {
 }
 export type Money = ReturnType<typeof makeMoney>;
 
-export const pct = (n: number | null | undefined): string => (n === null || n === undefined ? '—' : `${n.toFixed(1)}%`);
+export const pct = (n: number | null | undefined): string =>
+  n === null || n === undefined ? '—' : `${n.toFixed(1)}%`;
 
 /** Pretty quantity from base units. */
 export function qtyLabel(qty: number, unit: string): string {
@@ -39,7 +40,10 @@ export function todayIso(offset = 0): string {
   return d.toISOString().slice(0, 10);
 }
 
-export const UNIT_OPTIONS: Record<'g' | 'ml' | 'pcs', ('g' | 'kg' | 'ml' | 'l' | 'pcs' | 'dozen')[]> = {
+export const UNIT_OPTIONS: Record<
+  'g' | 'ml' | 'pcs',
+  ('g' | 'kg' | 'ml' | 'l' | 'pcs' | 'dozen')[]
+> = {
   g: ['g', 'kg'],
   ml: ['ml', 'l'],
   pcs: ['pcs', 'dozen'],

@@ -8,7 +8,9 @@ import { AuthPage } from './Login';
 
 const wrap = () =>
   render(
-    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
       <MemoryRouter>
         <AuthProvider>
           <AuthPage mode="login" />
@@ -27,7 +29,19 @@ describe('login page', () => {
     expect(screen.getByText(/not a food-safety system/i)).toBeInTheDocument();
   });
   it('shows the server error message on failed login', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: { code: 'INVALID_CREDENTIALS', message: 'Wrong email or password' } }), { status: 401 })));
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(
+            JSON.stringify({
+              error: { code: 'INVALID_CREDENTIALS', message: 'Wrong email or password' },
+            }),
+            { status: 401 },
+          ),
+        ),
+    );
     wrap();
     await userEvent.type(screen.getByLabelText('Email'), 'a@b.co');
     await userEvent.type(screen.getByLabelText('Password'), 'whatever1');

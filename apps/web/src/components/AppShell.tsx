@@ -1,4 +1,16 @@
-import { BarChart3, ChefHat, ClipboardList, LogOut, Menu, Package, Salad, Settings, Siren, Users, X } from 'lucide-react';
+import {
+  BarChart3,
+  ChefHat,
+  ClipboardList,
+  LogOut,
+  Menu,
+  Package,
+  Salad,
+  Settings,
+  Siren,
+  Users,
+  X,
+} from 'lucide-react';
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
@@ -37,7 +49,10 @@ export function AppShell() {
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[240px_1fr]">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:p-2">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:p-2"
+      >
         Skip to content
       </a>
       <aside className="hidden border-r border-ink-100 bg-white p-4 lg:block">
@@ -48,7 +63,12 @@ export function AppShell() {
       </aside>
       <div className="flex min-w-0 flex-col">
         <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-ink-100 bg-white px-3 py-2 sm:px-6">
-          <button className="btn-secondary lg:hidden" aria-label="Open menu" aria-expanded={open} onClick={() => setOpen(true)}>
+          <button
+            className="btn-secondary lg:hidden"
+            aria-label="Open menu"
+            aria-expanded={open}
+            onClick={() => setOpen(true)}
+          >
             <Menu className="h-4 w-4" aria-hidden />
           </button>
           <div className="min-w-0 flex-1">
@@ -62,7 +82,13 @@ export function AppShell() {
               <label htmlFor="outlet" className="sr-only">
                 Outlet
               </label>
-              <select id="outlet" className="input" value={outletId} onChange={(e) => setOutletId(e.target.value)} disabled={outlets.length < 2}>
+              <select
+                id="outlet"
+                className="input"
+                value={outletId}
+                onChange={(e) => setOutletId(e.target.value)}
+                disabled={outlets.length < 2}
+              >
                 {outlets.map((o) => (
                   <option key={o.id} value={o.id}>
                     {o.name}
@@ -77,12 +103,21 @@ export function AppShell() {
           </button>
         </header>
         {open && (
-          <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+          <div
+            className="fixed inset-0 z-40 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+          >
             <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
             <div className="absolute left-0 top-0 h-full w-72 bg-white p-4 shadow-xl">
               <div className="mb-4 flex items-center justify-between">
                 <p className="font-bold text-brand-700">Specials Saver</p>
-                <button className="btn-secondary" aria-label="Close menu" onClick={() => setOpen(false)}>
+                <button
+                  className="btn-secondary"
+                  aria-label="Close menu"
+                  onClick={() => setOpen(false)}
+                >
                   <X className="h-4 w-4" aria-hidden />
                 </button>
               </div>
@@ -93,7 +128,9 @@ export function AppShell() {
         <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-3 py-5 sm:px-6">
           <Outlet />
         </main>
-        <footer className="border-t border-ink-100 bg-white px-3 py-3 text-xs text-ink-500 sm:px-6">{FOOD_NOTICE}</footer>
+        <footer className="border-t border-ink-100 bg-white px-3 py-3 text-xs text-ink-500 sm:px-6">
+          {FOOD_NOTICE}
+        </footer>
       </div>
     </div>
   );

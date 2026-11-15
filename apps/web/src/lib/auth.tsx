@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api/endpoints';
 import { setUnauthorizedHandler, tokenStore } from '../api/client';
@@ -22,8 +30,17 @@ const Ctx = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const [token, setToken] = useState<string | null>(tokenStore.get());
-  const me = useQuery<Me>({ queryKey: ['me', token], queryFn: api.me, enabled: !!token, retry: false });
-  const outletsQ = useQuery({ queryKey: ['outlets', token], queryFn: api.outlets, enabled: !!token && !!me.data });
+  const me = useQuery<Me>({
+    queryKey: ['me', token],
+    queryFn: api.me,
+    enabled: !!token,
+    retry: false,
+  });
+  const outletsQ = useQuery({
+    queryKey: ['outlets', token],
+    queryFn: api.outlets,
+    enabled: !!token && !!me.data,
+  });
   const [selected, setSelected] = useState<string>('');
 
   const signOut = useCallback(() => {

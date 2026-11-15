@@ -38,9 +38,30 @@ export function App() {
         <Route path="at-risk" element={<AtRiskPage />} />
         <Route path="stock" element={<StockPage />} />
         <Route path="specials" element={<SpecialsPage />} />
-        <Route path="ingredients" element={<Protected ownerOnly><IngredientsPage /></Protected>} />
-        <Route path="dishes" element={<Protected ownerOnly><DishesPage /></Protected>} />
-        <Route path="team" element={<Protected ownerOnly><TeamPage /></Protected>} />
+        <Route
+          path="ingredients"
+          element={
+            <Protected ownerOnly>
+              <IngredientsPage />
+            </Protected>
+          }
+        />
+        <Route
+          path="dishes"
+          element={
+            <Protected ownerOnly>
+              <DishesPage />
+            </Protected>
+          }
+        />
+        <Route
+          path="team"
+          element={
+            <Protected ownerOnly>
+              <TeamPage />
+            </Protected>
+          }
+        />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

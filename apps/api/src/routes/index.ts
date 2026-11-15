@@ -5,6 +5,7 @@ import * as auth from '../controllers/auth.controller.js';
 import * as catalog from '../controllers/catalog.controller.js';
 import * as stock from '../controllers/stock.controller.js';
 import * as special from '../controllers/special.controller.js';
+import * as demo from '../controllers/demo.controller.js';
 import * as dash from '../controllers/dashboard.controller.js';
 
 const limiter = (max: number, windowMs = 60_000) =>
@@ -57,3 +58,4 @@ router.post('/specials/:id/end', special.end);
 router.post('/outlets/:outletId/suggestions', limiter(10), special.suggest);
 
 router.get('/dashboard', dash.get);
+router.post('/demo-data', requireOwner, limiter(3), demo.loadDemo);

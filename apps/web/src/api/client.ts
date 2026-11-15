@@ -47,7 +47,8 @@ export async function request<T>(
   opts: { body?: unknown; query?: Record<string, string | number | undefined> } = {},
 ): Promise<T> {
   const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(opts.query ?? {})) if (v !== undefined && v !== '') qs.set(k, String(v));
+  for (const [k, v] of Object.entries(opts.query ?? {}))
+    if (v !== undefined && v !== '') qs.set(k, String(v));
   const token = tokenStore.get();
   let res: Response;
   try {
@@ -60,15 +61,24 @@ export async function request<T>(
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
     });
   } catch {
-    throw new ApiError(0, 'NETWORK', 'Cannot reach the server. Check your connection and try again.');
+    throw new ApiError(
+      0,
+      'NETWORK',
+      'Cannot reach the server. Check your connection and try again.',
+    );
   }
   if (res.status === 204) return undefined as T;
-  const data = (await res.json().catch(() => null)) as
-    | { error?: { code: string; message: string; details?: unknown } }
-    | null;
+  const data = (await res.json().catch(() => null)) as {
+    error?: { code: string; message: string; details?: unknown };
+  } | null;
   if (!res.ok) {
     if (res.status === 401 && token) onUnauthorized();
-    throw new ApiError(res.status, data?.error?.code ?? 'ERROR', data?.error?.message ?? 'Request failed', data?.error?.details);
+    throw new ApiError(
+      res.status,
+      data?.error?.code ?? 'ERROR',
+      data?.error?.message ?? 'Request failed',
+      data?.error?.details,
+    );
   }
   return data as T;
 }

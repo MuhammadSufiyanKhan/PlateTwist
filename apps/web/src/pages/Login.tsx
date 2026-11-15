@@ -14,7 +14,9 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const [brandName, setBrandName] = useState('');
   const m = useMutation({
     mutationFn: () =>
-      mode === 'login' ? api.login(email, password) : api.register({ brandName, currency: 'USD', email, password }),
+      mode === 'login'
+        ? api.login(email, password)
+        : api.register({ brandName, currency: 'USD', email, password }),
     onSuccess: (r) => {
       signIn(r.token);
       nav('/app');
@@ -28,20 +30,48 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-50 px-4 py-10">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-6 flex items-center justify-center gap-2 text-xl font-bold text-brand-700">
+        <Link
+          to="/"
+          className="mb-6 flex items-center justify-center gap-2 text-xl font-bold text-brand-700"
+        >
           <ChefHat className="h-6 w-6" aria-hidden /> Specials Saver
         </Link>
-        <form onSubmit={submit} className="card space-y-4 p-6" aria-label={mode === 'login' ? 'Sign in' : 'Create account'}>
-          <h1 className="text-xl font-bold">{mode === 'login' ? 'Sign in' : 'Create your brand'}</h1>
+        <form
+          onSubmit={submit}
+          className="card space-y-4 p-6"
+          aria-label={mode === 'login' ? 'Sign in' : 'Create account'}
+        >
+          <h1 className="text-xl font-bold">
+            {mode === 'login' ? 'Sign in' : 'Create your brand'}
+          </h1>
           {mode === 'register' && (
             <Field label="Restaurant or brand name" htmlFor="brand">
-              <input id="brand" className="input" required minLength={2} value={brandName} onChange={(e) => setBrandName(e.target.value)} />
+              <input
+                id="brand"
+                className="input"
+                required
+                minLength={2}
+                value={brandName}
+                onChange={(e) => setBrandName(e.target.value)}
+              />
             </Field>
           )}
           <Field label="Email" htmlFor="email">
-            <input id="email" type="email" autoComplete="email" className="input" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              className="input"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </Field>
-          <Field label="Password" htmlFor="password" hint={mode === 'register' ? 'At least 8 characters.' : undefined}>
+          <Field
+            label="Password"
+            htmlFor="password"
+            hint={mode === 'register' ? 'At least 8 characters.' : undefined}
+          >
             <input
               id="password"
               type="password"
@@ -60,18 +90,26 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           <p className="text-center text-sm text-ink-500">
             {mode === 'login' ? (
               <>
-                New here? <Link className="font-semibold text-brand-700 underline" to="/register">Create an account</Link>
+                New here?{' '}
+                <Link className="font-semibold text-brand-700 underline" to="/register">
+                  Create an account
+                </Link>
               </>
             ) : (
               <>
-                Have an account? <Link className="font-semibold text-brand-700 underline" to="/login">Sign in</Link>
+                Have an account?{' '}
+                <Link className="font-semibold text-brand-700 underline" to="/login">
+                  Sign in
+                </Link>
               </>
             )}
           </p>
           {mode === 'login' && (
             <p className="rounded-lg bg-ink-50 p-3 text-xs text-ink-700">
-              <strong>Demo (after <code>npm run seed</code>):</strong> owner@demo.test or staff.downtown@demo.test, password{' '}
-              <code>Demo1234!</code>
+              <strong>
+                Demo (after <code>npm run seed</code>):
+              </strong>{' '}
+              owner@demo.test or staff.downtown@demo.test, password <code>Demo1234!</code>
             </p>
           )}
         </form>
