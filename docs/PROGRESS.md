@@ -19,3 +19,8 @@ None. Nothing from the section-11 cut list was needed.
 **Not verified / caveats:** Gemini and OpenAI-compatible adapters not run live. CI workflow not yet observed on GitHub. Deploy configs (Dockerfile, render.yaml, vercel.json) not exercised. Auth uses sessionStorage bearer tokens (documented limitation).
 
 **You must do manually:** see `docs/SETUP_CHECKLIST.md` (Atlas, Render, Vercel, env vars, optional AI key, open a PR if wanted).
+
+## Deployment (Vercel)
+- API: project `specials-saver-api` (root `apps/api`, serverless entry `api/index.js`) at https://specials-saver-api.vercel.app
+- Web: project `specials-saver-web` (root `apps/web`) at https://specials-saver-web.vercel.app
+- `MONGODB_URI` must be added to the API project by the owner (secret), then redeploy.
