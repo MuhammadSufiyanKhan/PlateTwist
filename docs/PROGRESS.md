@@ -23,4 +23,4 @@ None. Nothing from the section-11 cut list was needed.
 ## Deployment (Vercel)
 - API: project `specials-saver-api` (root `apps/api`, serverless entry `api/index.js`) at https://specials-saver-api.vercel.app
 - Web: project `specials-saver-web` (root `apps/web`) at https://specials-saver-web.vercel.app
-- `MONGODB_URI` must be added to the API project by the owner (secret), then redeploy.
+- `MONGODB_URI` is configured on the API project (secret); rotate the Atlas password after setup.
