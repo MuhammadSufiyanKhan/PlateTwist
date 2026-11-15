@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { api } from '../api/endpoints';
-import type { BaseUnit, Ingredient, Unit } from '../api/types';
+import type { BaseUnit, Ingredient, Page, Unit } from '../api/types';
 import { EmptyState, ErrorState, Field, PageHeader, QueryState } from '../components/ui';
 import { useDishes, useIngredients } from '../hooks/useData';
 import { useAuth } from '../lib/auth';
@@ -42,7 +42,21 @@ export function IngredientsPage() {
   });
   const patch = useMutation({
     mutationFn: (v: { id: string; b: Partial<Ingredient> }) => api.patchIngredient(v.id, v.b),
-    onSuccess: refresh,
+    // Optimistic: show the change immediately, roll back if the save fails.
+    onMutate: async (v) => {
+      await qc.cancelQueries({ queryKey: ['ingredients'] });
+      const prev = qc.getQueryData<Page<Ingredient>>(['ingredients']);
+      if (prev)
+        qc.setQueryData<Page<Ingredient>>(['ingredients'], {
+          ...prev,
+          items: prev.items.map((i) => (i.id === v.id ? { ...i, ...v.b } : i)),
+        });
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(['ingredients'], ctx.prev);
+    },
+    onSettled: refresh,
   });
   const del = useMutation({
     mutationFn: (id: string) => api.deleteIngredient(id),
