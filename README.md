@@ -84,6 +84,8 @@ The seed creates 1 brand, 2 outlets, 32 ingredients (6 staples), 12 dishes, 11 c
 
 ## AI providers
 
+Production demo runs `openai_compat` against Groq (`AI_BASE_URL=https://api.groq.com/openai/v1`).
+
 `AI_PROVIDER=mock` (default, deterministic, used by all tests) works with no key. `gemini` and `openai_compat` are written against the public API shapes but **were not exercised live** in development. To try one locally: set `AI_PROVIDER`, `AI_MODEL`, `AI_API_KEY` (and `AI_BASE_URL` for openai_compat) in `.env`, restart the API and press _Suggest specials_. The AI only proposes dishes from ids it was given; the server discards unknown ids, non-positive quantities and ideas allowing fewer than 2 portions, retries once, then returns an error. Prices, margins and portions always come from the calculator.
 
 ## Testing
