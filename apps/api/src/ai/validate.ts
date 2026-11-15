@@ -19,9 +19,9 @@ const CLAIMS =
 
 /** Strip markup/control characters; the UI also renders text only. */
 export const cleanText = (s: string): string =>
-  // eslint-disable-next-line no-control-regex
-  s
-    .replace(/[<>\u0000-\u001f]/g, ' ')
+  [...s]
+    .map((c) => (c === '<' || c === '>' || c.charCodeAt(0) < 32 ? ' ' : c))
+    .join('')
     .replace(/\s+/g, ' ')
     .trim();
 
