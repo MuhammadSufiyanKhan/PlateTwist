@@ -1,6 +1,6 @@
 import { SYSTEM_PROMPT, userPrompt, type AiInput, type AiProvider } from './types.js';
 
-const SKIP = /whisper|guard|tts|embed|vision|audio|moderation|transcribe|image|dall|rerank/i;
+const SKIP = /whisper|guard|safeguard|orpheus|tts|embed|vision|audio|moderation|transcribe|image|dall|rerank/i;
 const PREFER = [/llama-3\.3/i, /llama-3\.1-8b/i, /llama/i, /gpt-oss/i, /qwen/i, /mixtral|gemma/i];
 
 /** Pick a general chat model from an OpenAI-style /models listing. */
