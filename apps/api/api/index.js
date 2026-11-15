@@ -10,8 +10,10 @@ export default async function handler(req, res) {
   try {
     ready ??= connectDb(config.MONGODB_URI);
     await ready;
-  } catch {
+  } catch (err) {
     ready = undefined;
+    // Log the reason (credentials stripped) so it shows up in Vercel runtime logs.
+    console.error('DB connect failed:', String(err && err.message).replace(/\/\/[^@\s]*@/g, '//***@'));
     res.statusCode = 503;
     res.setHeader('content-type', 'application/json');
     res.end(JSON.stringify({ error: { code: 'DB_UNAVAILABLE', message: 'Database unavailable' } }));
