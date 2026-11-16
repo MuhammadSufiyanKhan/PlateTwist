@@ -1,14 +1,14 @@
-import { Monitor, Moon, Sun, type LucideIcon } from 'lucide-react';
-import { useTheme, type ThemePref } from '../lib/theme';
+import { Moon, Sun, type LucideIcon } from 'lucide-react';
+import { useTheme } from '../lib/theme';
 
-const OPTIONS: { value: ThemePref; label: string; icon: LucideIcon }[] = [
+const OPTIONS: { value: 'light' | 'dark'; label: string; icon: LucideIcon }[] = [
   { value: 'light', label: 'Light', icon: Sun },
-  { value: 'system', label: 'System', icon: Monitor },
   { value: 'dark', label: 'Dark', icon: Moon },
 ];
 
 export function ThemeToggle({ className = '' }: { className?: string }) {
-  const { pref, setPref } = useTheme();
+  // With no saved choice the first visit follows the device; the toggle shows what is applied.
+  const { resolved, setPref } = useTheme();
   return (
     <div
       role="radiogroup"
@@ -19,12 +19,12 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
         <button
           key={value}
           role="radio"
-          aria-checked={pref === value}
+          aria-checked={resolved === value}
           aria-label={`${label} theme`}
           title={`${label} theme`}
           onClick={() => setPref(value)}
           className={`flex h-10 w-10 items-center justify-center rounded-[10px] transition ${
-            pref === value
+            resolved === value
               ? 'bg-brand-600 text-white'
               : 'text-ink-500 hover:bg-raised hover:text-ink-900'
           }`}

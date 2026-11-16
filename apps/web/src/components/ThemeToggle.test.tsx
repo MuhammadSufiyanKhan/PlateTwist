@@ -24,7 +24,6 @@ describe('theme toggle', () => {
     await userEvent.click(screen.getByRole('radio', { name: 'Light theme' }));
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
 
-    await userEvent.click(screen.getByRole('radio', { name: 'System theme' }));
-    expect(localStorage.getItem('specials_theme')).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'System theme' })).toBeNull();
   });
 });
