@@ -23,7 +23,7 @@ npm-workspaces monorepo. `apps/api`: Express + Mongoose + zod, layered routes â†
 ## Quick start
 
 ```bash
-cp .env.example .env
+# create a .env file in the repo root using the variable table below (no real secrets in git)
 docker compose up -d        # MongoDB 7
 npm install
 npm run seed                # deterministic demo data (REPLACES the database contents)
