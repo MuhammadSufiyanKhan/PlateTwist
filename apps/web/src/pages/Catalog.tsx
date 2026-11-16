@@ -1,3 +1,4 @@
+import { useConfirm } from '../lib/confirm';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
@@ -16,6 +17,7 @@ const fromBaseCost = (cost: number, unit: BaseUnit, minorFactor: number): number
   (cost * (unit === 'pcs' ? 1 : 1000)) / minorFactor;
 
 export function IngredientsPage() {
+  const confirm = useConfirm();
   const { money } = useAuth();
   const q = useIngredients();
   const qc = useQueryClient();
@@ -201,8 +203,15 @@ export function IngredientsPage() {
                         <button
                           className="btn-secondary"
                           aria-label={`Delete ${i.name}`}
-                          onClick={() => {
-                            if (window.confirm(`Delete ${i.name}?`)) del.mutate(i.id);
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: `Delete ${i.name}?`,
+                              message:
+                                'This removes the ingredient. It cannot be deleted while a dish or batch uses it.',
+                              confirmLabel: 'Delete ingredient',
+                              destructive: true,
+                            });
+                            if (ok) del.mutate(i.id);
                           }}
                         >
                           <Trash2 className="h-4 w-4" aria-hidden />
@@ -226,6 +235,7 @@ interface Line {
 }
 
 export function DishesPage() {
+  const confirm = useConfirm();
   const { money } = useAuth();
   const dishes = useDishes();
   const ings = useIngredients();
@@ -375,8 +385,15 @@ export function DishesPage() {
                   <button
                     className="btn-secondary"
                     aria-label={`Delete ${x.name}`}
-                    onClick={() => {
-                      if (window.confirm(`Delete ${x.name}?`)) del.mutate(x.id);
+                    onClick={async () => {
+                      const ok = await confirm({
+                        title: `Delete ${x.name}?`,
+                        message:
+                          'The dish is removed from your catalog. Specials already running are not affected.',
+                        confirmLabel: 'Delete dish',
+                        destructive: true,
+                      });
+                      if (ok) del.mutate(x.id);
                     }}
                   >
                     <Trash2 className="h-4 w-4" aria-hidden />

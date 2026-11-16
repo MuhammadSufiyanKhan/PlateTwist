@@ -7,6 +7,7 @@ import { AuthProvider } from './lib/auth';
 import '@fontsource-variable/bricolage-grotesque';
 import '@fontsource-variable/figtree';
 import { ThemeProvider } from './lib/theme';
+import { ConfirmProvider } from './lib/confirm';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -17,11 +18,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </BrowserRouter>
+        <ConfirmProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </BrowserRouter>
+        </ConfirmProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>,

@@ -1,3 +1,4 @@
+import { useConfirm } from '../lib/confirm';
 import { SaveRing } from '../components/SaveRing';
 import { useTheme } from '../lib/theme';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -25,6 +26,7 @@ export function DashboardPage() {
   const [filter, setFilter] = useState('');
   const [windowDays, setWindowDays] = useState<7 | 30>(30);
   const q = useDashboard(filter || undefined);
+  const confirm = useConfirm();
   const qc = useQueryClient();
   const demo = useMutation({
     mutationFn: api.loadDemo,
@@ -143,6 +145,24 @@ export function DashboardPage() {
                         <div className="mt-3 text-left">
                           <ErrorState error={demo.error} />
                         </div>
+                      )}
+                      {demo.isError && (
+                        <button
+                          className="btn-danger mt-3"
+                          disabled={demo.isPending}
+                          onClick={async () => {
+                            const ok = await confirm({
+                              title: 'Replace your data with demo data?',
+                              message:
+                                'This deletes this brand’s ingredients, dishes, stock, specials and waste records, then loads sample data. Your users, outlets and settings are kept.',
+                              confirmLabel: 'Replace with demo data',
+                              destructive: true,
+                            });
+                            if (ok) demo.mutate(true);
+                          }}
+                        >
+                          Replace existing data with demo data
+                        </button>
                       )}
                     </div>
                   )}

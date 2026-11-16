@@ -1,3 +1,4 @@
+import { useConfirm } from '../lib/confirm';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
@@ -19,6 +20,7 @@ type Tab = 'ACTIVE' | 'ENDED';
 
 export function SpecialsPage() {
   const { outletId, money } = useAuth();
+  const confirm = useConfirm();
   const [tab, setTab] = useState<Tab>('ACTIVE');
   const q = useSpecials(outletId, tab);
   const qc = useQueryClient();
@@ -86,9 +88,14 @@ export function SpecialsPage() {
                 s={s}
                 busy={sell.isPending || end.isPending}
                 onSell={() => sell.mutate(s.id)}
-                onEnd={() => {
-                  if (window.confirm(`End “${s.name}”? Unsold stock goes back to inventory.`))
-                    end.mutate(s.id);
+                onEnd={async () => {
+                  const ok = await confirm({
+                    title: `End “${s.name}”?`,
+                    message:
+                      'Unsold stock goes back to your inventory and the results are counted as saved.',
+                    confirmLabel: 'End special',
+                  });
+                  if (ok) end.mutate(s.id);
                 }}
               />
             ))}
