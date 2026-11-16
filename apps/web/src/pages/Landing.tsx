@@ -1,189 +1,214 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { BarChart3, ChefHat, Clock, Sparkles } from 'lucide-react';
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FOOD_NOTICE } from '../components/ui';
+import { Logo } from '../components/AppShell';
+import { SaveRing } from '../components/SaveRing';
+import { ThemeToggle } from '../components/ThemeToggle';
+import { FOOD_NOTICE, UrgencyBadge } from '../components/ui';
+import type { Urgency } from '../api/types';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FEATURES = [
+const TICKETS: { name: string; detail: string; value: string; urgency: Urgency }[] = [
+  { name: 'Chicken thigh', detail: '2.7 kg, use by today', value: '$66.00', urgency: 'TODAY' },
   {
-    icon: Clock,
-    title: 'See what is about to be wasted, ranked by money',
-    body: 'Log batches with their expiry dates. The at-risk board ranks stock by value at risk, so the salmon expiring tomorrow outranks the rice expiring Friday. Expired use-by stock is never offered for sale.',
-    points: [
-      'Quantity × cost ÷ days left',
-      'Urgency shown by label and icon',
-      'Expired stock logged as waste automatically',
-    ],
+    name: 'Salmon fillet',
+    detail: '1.5 kg, use by tomorrow',
+    value: '$48.00',
+    urgency: 'TOMORROW',
+  },
+  { name: 'Spinach', detail: '1.2 kg, 3 days left', value: '$3.60', urgency: 'SOON' },
+];
+
+const STEPS = [
+  {
+    title: 'Log what you have',
+    body: 'Add each delivery with its expiry date. The board ranks stock by money at risk, so a tray of salmon outranks a sack of rice.',
   },
   {
-    icon: Sparkles,
-    title: 'Get specials with the numbers already worked out',
-    body: 'Pick the batches you want to use up and get three to five special ideas. Cost, suggested price, margin and portions are calculated by the app from your own costs and stock, never guessed by the AI.',
-    points: [
-      'Price rounded to your menu style',
-      'Never more portions than the stock allows',
-      'Run it with one tap, count sales with +1',
-    ],
+    title: 'Run a priced special',
+    body: 'Pick the batches to use up and get three to five ideas. Cost, price, margin and portions are worked out from your own costs and stock.',
   },
   {
-    icon: BarChart3,
-    title: 'Prove the savings on a dashboard',
-    body: 'End a special and the app records the stock value you saved and the value still wasted. Owners see every outlet; staff see their own. Watch the save rate climb week by week.',
-    points: [
-      'Saved vs wasted at cost, 7 and 30 days',
-      'Top wasted ingredients',
-      'Margin earned from specials',
-    ],
+    title: 'See what you saved',
+    body: 'Tap +1 for each sale and end the special at close. The dashboard shows stock saved against stock wasted, week by week.',
   },
 ];
 
 export function Landing() {
   const root = useRef<HTMLDivElement>(null);
+  const [rate, setRate] = useState(0);
 
   useLayoutEffect(() => {
     const mm = gsap.matchMedia();
     mm.add('(prefers-reduced-motion: no-preference)', () => {
-      gsap.from('[data-hero] > *', {
-        y: 28,
+      // One orchestrated moment: the kitchen printer prints the tickets.
+      gsap.from('[data-print]', {
+        yPercent: -60,
         autoAlpha: 0,
-        duration: 0.7,
-        ease: 'power2.out',
-        stagger: 0.12,
-      });
-      gsap.from('[data-hero-card]', {
-        y: 40,
-        autoAlpha: 0,
+        clipPath: 'inset(0 0 100% 0)',
         duration: 0.9,
+        ease: 'power3.out',
+        stagger: 0.28,
         delay: 0.25,
-        ease: 'power2.out',
       });
-      gsap.utils.toArray<HTMLElement>('[data-feature]').forEach((el) => {
-        gsap.from(el.querySelectorAll('[data-reveal]'), {
-          y: 36,
-          autoAlpha: 0,
-          duration: 0.7,
-          ease: 'power2.out',
-          stagger: 0.12,
-          scrollTrigger: { trigger: el, start: 'top 80%', once: true },
-        });
+      gsap.from('[data-hero-copy]', {
+        autoAlpha: 0,
+        y: 14,
+        duration: 0.6,
+        ease: 'power2.out',
+        stagger: 0.08,
+      });
+      // The save-rate ring counts up once when it scrolls into view.
+      const counter = { v: 0 };
+      ScrollTrigger.create({
+        trigger: '[data-proof]',
+        start: 'top 75%',
+        once: true,
+        onEnter: () =>
+          gsap.to(counter, {
+            v: 81,
+            duration: 1.6,
+            ease: 'power2.out',
+            onUpdate: () => setRate(counter.v),
+          }),
       });
     });
+    mm.add('(prefers-reduced-motion: reduce)', () => setRate(81));
     return () => mm.revert();
   }, []);
 
   return (
-    <div ref={root} className="bg-white">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <p className="flex items-center gap-2 text-lg font-bold text-brand-700">
-          <ChefHat className="h-6 w-6" aria-hidden /> Specials Saver
-        </p>
-        <nav aria-label="Account" className="flex gap-2">
+    <div ref={root} className="min-h-screen bg-bg">
+      <header className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-4">
+        <Logo />
+        <nav aria-label="Account" className="flex items-center gap-2">
+          <ThemeToggle className="hidden sm:inline-flex" />
           <Link to="/login" className="btn-secondary">
             Sign in
           </Link>
           <Link to="/register" className="btn-primary">
-            Get started
+            Create account
           </Link>
         </nav>
       </header>
 
-      <section className="bg-gradient-to-b from-brand-50 to-white">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:py-20">
-          <div data-hero className="space-y-5">
-            <p className="inline-block rounded-full bg-brand-100 px-3 py-1 text-sm font-semibold text-brand-800">
-              For restaurants and kitchens
-            </p>
-            <h1 className="text-4xl font-extrabold tracking-tight text-ink-900 sm:text-5xl">
-              Turn near-expiry stock into specials that sell.
-            </h1>
-            <p className="text-lg text-ink-700">
-              Log what is about to go off, get priced special ideas in seconds, and track exactly
-              how much waste you saved.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link to="/register" className="btn-primary">
-                Create your brand
-              </Link>
-              <Link to="/login" className="btn-secondary">
-                Try the demo login
-              </Link>
-            </div>
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-10 md:grid-cols-[1.1fr_1fr] md:pt-16">
+        <div>
+          <h1
+            data-hero-copy
+            className="font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl"
+          >
+            Sell it before you bin it.
+          </h1>
+          <p data-hero-copy className="mt-5 max-w-md text-lg leading-relaxed text-ink-700">
+            Log the stock that is about to expire, get priced specials in seconds, and see exactly
+            how much waste you saved.
+          </p>
+          <div data-hero-copy className="mt-8 flex flex-wrap gap-3">
+            <Link to="/register" className="btn-primary h-12 px-6 text-base">
+              Create your account
+            </Link>
+            <Link to="/login" className="btn-secondary h-12 px-6 text-base">
+              Sign in
+            </Link>
           </div>
-          <div data-hero-card className="card p-5" aria-label="Example of the at-risk board">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">
-              At risk today
+          <p data-hero-copy className="mt-4 max-w-md text-sm text-ink-500">
+            A planning aid for kitchens, not a food-safety system.
+          </p>
+        </div>
+
+        <div aria-label="Example of the at-risk board" className="relative">
+          <div
+            aria-hidden
+            className="mx-auto mb-3 h-3 w-[92%] rounded-full bg-[rgb(var(--rail))] shadow-lift"
+          />
+          <ul className="mx-auto w-[96%] space-y-3">
+            {TICKETS.map((t, i) => (
+              <li
+                key={t.name}
+                data-print
+                className={`ticket ${i % 2 ? 'rotate-[0.8deg]' : '-rotate-[0.6deg]'}`}
+              >
+                <div className="ticket-stub p-0">
+                  <UrgencyBadge urgency={t.urgency} stub />
+                </div>
+                <div className="ticket-body flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-display text-lg font-bold">{t.name}</p>
+                    <p className="text-sm text-ink-500">{t.detail}</p>
+                  </div>
+                  <p className="money text-xl">{t.value}</p>
+                </div>
+              </li>
+            ))}
+            <li data-print className="card bg-label p-4 text-label-ink">
+              <p className="text-sm font-semibold">Suggested special</p>
+              <p className="font-display text-xl font-extrabold">Creamy salmon penne</p>
+              <p className="text-sm">14 portions. $22.50 each. 71% margin.</p>
+            </li>
+          </ul>
+          <p className="mt-3 text-center text-xs text-ink-500">Example data</p>
+        </div>
+      </section>
+
+      <section className="border-y border-ink-100 bg-surface" aria-labelledby="how">
+        <div className="mx-auto max-w-6xl px-4 py-16">
+          <h2
+            id="how"
+            className="max-w-xl font-display text-3xl font-extrabold tracking-tight sm:text-4xl"
+          >
+            From the walk-in to the menu in three steps
+          </h2>
+          <ol className="mt-10 grid gap-5 md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="ticket">
+                <div
+                  className="ticket-stub bg-brand-600 text-white"
+                  style={{ ['--stub' as string]: '4rem' }}
+                >
+                  <span className="font-display text-3xl font-extrabold">{i + 1}</span>
+                </div>
+                <div className="ticket-body">
+                  <h3 className="font-display text-lg font-bold">{s.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-700">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section data-proof className="mx-auto max-w-6xl px-4 py-16" aria-labelledby="proof">
+        <div className="card flex flex-col items-center gap-8 p-8 md:flex-row md:gap-14">
+          <SaveRing rate={rate} size={200} />
+          <div>
+            <h2
+              id="proof"
+              className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl"
+            >
+              Proof, not guesswork
+            </h2>
+            <p className="mt-3 max-w-lg text-ink-700">
+              Every special that ends adds to the saved column. Every expired batch and waste entry
+              adds to the wasted one. Owners see every outlet; staff see their own.
             </p>
-            <ul className="mt-3 divide-y divide-ink-100 text-sm">
-              {[
-                ['Salmon fillet', 'Tomorrow', '$48.00'],
-                ['Chicken thigh', 'Use today', '$66.00'],
-                ['Spinach', 'Within 3 days', '$3.60'],
-              ].map(([n, u, v]) => (
-                <li key={n} className="flex items-center justify-between py-3">
-                  <span className="font-semibold">{n}</span>
-                  <span className="rounded-full border border-ink-300 px-2 py-0.5 text-xs">
-                    {u}
-                  </span>
-                  <span className="font-bold">{v}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 rounded-lg bg-brand-50 p-3 text-sm text-brand-900">
-              <strong>Creamy salmon penne</strong> · 14 portions · $22.50 · 71% margin
-            </div>
+            <p className="mt-3 text-xs text-ink-500">
+              Example figure from the demo data, not a customer result.
+            </p>
           </div>
         </div>
       </section>
 
-      {FEATURES.map((f, i) => (
-        <section
-          key={f.title}
-          data-feature
-          className={i % 2 ? 'bg-ink-50' : 'bg-white'}
-          aria-labelledby={`f-${i}`}
-        >
-          <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-14 md:grid-cols-2">
-            <div className={i % 2 ? 'md:order-2' : ''}>
-              <f.icon data-reveal className="h-9 w-9 text-brand-600" aria-hidden />
-              <h2
-                data-reveal
-                id={`f-${i}`}
-                className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl"
-              >
-                {f.title}
-              </h2>
-              <p data-reveal className="mt-3 text-ink-700">
-                {f.body}
-              </p>
-            </div>
-            <ul className="space-y-3">
-              {f.points.map((p) => (
-                <li
-                  key={p}
-                  data-reveal
-                  className="card flex items-center gap-3 p-4 text-sm font-medium"
-                >
-                  <span className="h-2 w-2 rounded-full bg-brand-600" aria-hidden />
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      ))}
-
-      <section className="bg-brand-700 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-14 text-center">
-          <h2 className="text-2xl font-bold sm:text-3xl">Stop throwing money in the bin.</h2>
-          <Link to="/register" className="btn mt-6 bg-white text-brand-800 hover:bg-brand-50">
-            Get started
+      <footer className="border-t border-ink-100 bg-surface">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-ink-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>{FOOD_NOTICE}</p>
+          <Link to="/register" className="btn-primary self-start">
+            Create your account
           </Link>
         </div>
-      </section>
-      <footer className="mx-auto max-w-6xl px-4 py-6 text-xs text-ink-500">{FOOD_NOTICE}</footer>
+      </footer>
     </div>
   );
 }

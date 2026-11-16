@@ -1,16 +1,41 @@
 /** @type {import('tailwindcss').Config} */
+const v = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: ['selector', '[data-theme="dark"]'],
+  safelist: ['sticker-TODAY', 'sticker-TOMORROW', 'sticker-SOON', 'sticker-LATER'],
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#effaf3', 100: '#d8f3e1', 200: '#b4e6c6', 300: '#82d3a3', 400: '#4fb97d',
-          500: '#2c9d62', 600: '#1e7e4e', 700: '#196441', 800: '#175035', 900: '#14422d',
-        },
-        ink: { 900: '#14201a', 700: '#34443b', 500: '#5d6d64', 300: '#a7b3ac', 100: '#e8eeea', 50: '#f6f8f6' },
+        bg: v('bg'),
+        surface: v('surface'),
+        raised: v('raised'),
+        danger: v('danger'),
+        'danger-soft': v('danger-soft'),
+        warn: v('warn'),
+        'warn-soft': v('warn-soft'),
+        label: v('label'),
+        today: v('today'),
+        'label-ink': v('label-ink'),
+        brand: Object.fromEntries(
+          [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => [n, v(`brand-${n}`)]),
+        ),
+        ink: Object.fromEntries([50, 100, 300, 500, 700, 900].map((n) => [n, v(`ink-${n}`)])),
       },
-      fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+      fontFamily: {
+        sans: ['"Figtree Variable"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: [
+          '"Bricolage Grotesque Variable"',
+          '"Figtree Variable"',
+          'ui-sans-serif',
+          'sans-serif',
+        ],
+      },
+      boxShadow: {
+        card: '0 1px 2px rgb(var(--shadow) / 0.06), 0 6px 20px -8px rgb(var(--shadow) / 0.12)',
+        lift: '0 2px 4px rgb(var(--shadow) / 0.08), 0 18px 40px -14px rgb(var(--shadow) / 0.28)',
+      },
     },
   },
   plugins: [],

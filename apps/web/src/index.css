@@ -2,43 +2,200 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- design tokens (RGB triplets so Tailwind alpha works) ---------- */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: 232 237 234;
+  --surface: 255 255 255;
+  --raised: 246 248 247;
+  --shadow: 16 40 30;
+  --ink-900: 15 27 23;
+  --ink-700: 48 66 58;
+  --ink-500: 88 106 98;
+  --ink-300: 156 172 164;
+  --ink-100: 215 223 219;
+  --ink-50: 232 237 234;
+  --brand-50: 230 246 238;
+  --brand-100: 205 238 221;
+  --brand-200: 165 224 195;
+  --brand-300: 111 203 159;
+  --brand-400: 63 176 127;
+  --brand-500: 31 150 103;
+  --brand-600: 11 122 75;
+  --brand-700: 9 98 60;
+  --brand-800: 10 78 50;
+  --brand-900: 10 61 40;
+  --danger: 187 28 44;
+  --danger-soft: 253 235 237;
+  --warn: 150 72 6;
+  --warn-soft: 255 241 219;
+  --label: 255 210 63;
+  --label-ink: 42 30 0;
+  --today: 190 30 45;
+  --rail: 13 30 24;
+  --rail-ink: 214 232 222;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: 10 16 14;
+  --surface: 19 28 25;
+  --raised: 27 39 35;
+  --shadow: 0 0 0;
+  --ink-900: 232 240 236;
+  --ink-700: 195 211 203;
+  --ink-500: 142 163 153;
+  --ink-300: 72 92 83;
+  --ink-100: 37 51 45;
+  --ink-50: 10 16 14;
+  --brand-50: 17 41 32;
+  --brand-100: 20 54 41;
+  --brand-200: 25 72 54;
+  --brand-300: 33 100 74;
+  --brand-400: 41 132 96;
+  --brand-500: 46 162 115;
+  --brand-600: 19 128 90;
+  --brand-700: 112 216 168;
+  --brand-800: 144 232 190;
+  --brand-900: 190 245 216;
+  --danger: 255 128 128;
+  --danger-soft: 58 25 29;
+  --warn: 255 178 88;
+  --warn-soft: 54 38 14;
+  --label: 255 210 63;
+  --label-ink: 42 30 0;
+  --today: 205 55 68;
+  --rail: 7 12 10;
+  --rail-ink: 190 210 199;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    background: rgb(var(--bg));
   }
   body {
-    @apply bg-ink-50 text-ink-900 antialiased;
+    @apply bg-bg font-sans text-ink-900 antialiased;
+    font-feature-settings: 'ss01', 'tnum';
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-600 ring-offset-2;
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-bg;
+  }
+  ::selection {
+    background: rgb(var(--label) / 0.55);
+    color: rgb(var(--label-ink));
   }
 }
+
 @layer components {
   .card {
-    @apply rounded-xl border border-ink-100 bg-white shadow-sm;
+    @apply rounded-2xl border border-ink-100 bg-surface shadow-card;
   }
   .btn {
-    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-brand-600 text-white shadow-sm hover:brightness-110;
   }
   .btn-secondary {
-    @apply btn border border-ink-300 bg-white text-ink-900 hover:bg-ink-50;
+    @apply btn border border-ink-300 bg-surface text-ink-900 hover:bg-raised;
   }
   .btn-danger {
-    @apply btn bg-red-700 text-white hover:bg-red-800;
+    @apply btn bg-today text-white hover:brightness-110;
   }
   .input {
-    @apply min-h-[44px] w-full rounded-lg border border-ink-300 bg-white px-3 text-sm text-ink-900 placeholder:text-ink-500;
+    @apply min-h-[44px] w-full rounded-xl border border-ink-300 bg-surface px-3 text-sm text-ink-900 placeholder:text-ink-500;
   }
   .label {
     @apply mb-1 block text-sm font-medium text-ink-700;
   }
+  .alert {
+    @apply rounded-xl border p-4 text-sm;
+  }
+  .alert-error {
+    @apply alert border-danger/40 bg-danger-soft text-danger;
+  }
+  .alert-warn {
+    @apply alert border-warn/40 bg-warn-soft text-warn;
+  }
+  .alert-ok {
+    @apply alert border-brand-300 bg-brand-50 text-brand-800;
+  }
+
+  /* Order-ticket: a stub on the left, a perforation, then the content. */
+  .ticket {
+    @apply relative flex overflow-visible rounded-2xl border border-ink-100 bg-surface shadow-card;
+    --stub: 5.75rem;
+  }
+  .ticket-stub {
+    @apply flex shrink-0 flex-col items-center justify-center gap-1 rounded-l-2xl px-2 py-3 text-center;
+    width: var(--stub);
+  }
+  .ticket-body {
+    @apply min-w-0 flex-1 border-l-2 border-dashed border-ink-100 p-3 sm:p-4;
+  }
+  .ticket::before,
+  .ticket::after {
+    content: '';
+    position: absolute;
+    left: calc(var(--stub) - 8px);
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: rgb(var(--bg));
+    border: 1px solid rgb(var(--ink-100));
+    z-index: 1;
+  }
+  .ticket::before {
+    top: -8px;
+    clip-path: inset(50% 0 0 0);
+  }
+  .ticket::after {
+    bottom: -8px;
+    clip-path: inset(0 0 50% 0);
+  }
+  @media (max-width: 420px) {
+    .ticket {
+      --stub: 4.75rem;
+    }
+  }
+
+  /* Date stickers: urgency is label + icon + colour. */
+  .sticker {
+    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-bold leading-tight;
+  }
+  .sticker-TODAY {
+    background: rgb(var(--today));
+    color: #fff;
+  }
+  .sticker-TOMORROW {
+    background: rgb(245 158 11);
+    color: rgb(var(--label-ink));
+  }
+  .sticker-SOON {
+    background: rgb(var(--label));
+    color: rgb(var(--label-ink));
+  }
+  .sticker-LATER {
+    @apply bg-brand-100 text-brand-800;
+  }
+
+  .money {
+    @apply font-display font-bold tabular-nums tracking-tight;
+  }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }

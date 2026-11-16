@@ -51,7 +51,7 @@ export function SpecialsPage() {
             role="tab"
             aria-selected={tab === t}
             onClick={() => setTab(t)}
-            className={`min-h-[44px] px-5 text-sm font-semibold ${tab === t ? 'bg-brand-600 text-white' : 'bg-white text-ink-700'}`}
+            className={`min-h-[44px] px-5 text-sm font-semibold ${tab === t ? 'bg-brand-600 text-white' : 'bg-surface text-ink-700'}`}
           >
             {t === 'ACTIVE' ? 'Active' : 'Ended'}
           </button>
@@ -101,7 +101,7 @@ export function SpecialsPage() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="sum-h"
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-3 sm:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-3 sm:items-center"
         >
           <div className="card w-full max-w-md space-y-3 p-5">
             <h2 id="sum-h" className="text-lg font-bold">
@@ -126,7 +126,7 @@ export function SpecialsPage() {
               </div>
               <div>
                 <dt className="text-ink-500">Already expired</dt>
-                <dd className="text-lg font-bold text-red-700">
+                <dd className="text-lg font-bold text-danger">
                   {money.format(summary.wastedValue)}
                 </dd>
               </div>
@@ -167,65 +167,90 @@ function SpecialCard({
   const { money } = useAuth();
   const remaining = s.portionsPlanned - s.portionsSold;
   return (
-    <li className="card flex flex-col p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h3 className="font-bold">{s.name}</h3>
-          <p className="text-xs text-ink-500">
-            {s.source === 'AI' ? 'AI idea' : 'Catalog dish'} · {money.format(s.price)} · margin{' '}
-            {pct(s.marginPct)}
+    <li className="card relative flex flex-col overflow-visible">
+      <div className="flex items-start justify-between gap-3 p-4 pb-3">
+        <div className="min-w-0">
+          <h3 className="font-display text-xl font-extrabold leading-tight">{s.name}</h3>
+          <p className="mt-0.5 text-xs text-ink-500">
+            {s.source === 'AI' ? 'AI idea' : 'Catalog dish'}. Margin {pct(s.marginPct)}. Cost{' '}
+            {money.format(s.costPerPortion)} a portion.
           </p>
         </div>
-        <span
-          className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${s.status === 'ACTIVE' ? 'border-brand-300 bg-brand-50 text-brand-800' : 'border-ink-300 bg-ink-50 text-ink-700'}`}
-        >
-          {s.status === 'ACTIVE' ? 'Active' : 'Ended'}
-        </span>
-      </div>
-      {s.description && <p className="mt-1 text-sm text-ink-700">{s.description}</p>}
-      <p className="mt-2 text-xs text-ink-500">
-        {s.items.map((i) => `${i.name} ${qtyLabel(i.qtyPerPortion, i.baseUnit)}`).join(' · ')}
-      </p>
-      <div className="mt-3">
-        <div className="flex justify-between text-sm">
-          <span className="font-semibold">
-            {s.portionsSold} / {s.portionsPlanned} sold
-          </span>
-          <span className="text-ink-500">{remaining} left</span>
-        </div>
-        <progress
-          className="mt-1 h-3 w-full accent-brand-600"
-          value={s.portionsSold}
-          max={s.portionsPlanned}
-          aria-label="Portions sold"
-        />
-      </div>
-      {s.status === 'ACTIVE' ? (
-        <div className="mt-4 flex gap-2">
-          <button
-            className="btn-primary flex-1 text-base"
-            disabled={busy || remaining === 0}
-            onClick={onSell}
-            aria-label={`Add one sold: ${s.name}`}
+        <div className="text-right">
+          <p className="money text-2xl">{money.format(s.price)}</p>
+          <span
+            className={`mt-1 inline-block rounded-md px-2 py-0.5 text-xs font-bold ${s.status === 'ACTIVE' ? 'bg-brand-600 text-white' : 'bg-ink-100 text-ink-700'}`}
           >
-            <Plus className="h-5 w-5" aria-hidden /> 1 sold
-          </button>
-          <button className="btn-secondary" disabled={busy} onClick={onEnd}>
-            End special
-          </button>
+            {s.status === 'ACTIVE' ? 'On the menu' : 'Ended'}
+          </span>
         </div>
-      ) : (
-        <dl className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-ink-50 p-3 text-sm">
-          <div>
-            <dt className="text-xs text-ink-500">Saved</dt>
-            <dd className="font-bold text-brand-700">{money.format(s.savedValue)}</dd>
+      </div>
+      <div className="relative border-t-2 border-dashed border-ink-100 p-4 pt-3">
+        <span
+          aria-hidden
+          className="absolute -left-2 -top-[9px] h-4 w-4 rounded-full border border-ink-100 bg-bg"
+          style={{ clipPath: 'inset(0 50% 0 0)' }}
+        />
+        <span
+          aria-hidden
+          className="absolute -right-2 -top-[9px] h-4 w-4 rounded-full border border-ink-100 bg-bg"
+          style={{ clipPath: 'inset(0 0 0 50%)' }}
+        />
+        {s.description && <p className="text-sm text-ink-700">{s.description}</p>}
+        <p className="mt-1 text-xs text-ink-500">
+          {s.items.map((i) => `${i.name} ${qtyLabel(i.qtyPerPortion, i.baseUnit)}`).join(', ')}
+        </p>
+        <div className="mt-3">
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="money text-lg">
+              {s.portionsSold}
+              <span className="text-sm font-medium text-ink-500"> of {s.portionsPlanned} sold</span>
+            </span>
+            <span className="text-ink-500">{remaining} left</span>
           </div>
-          <div>
-            <dt className="text-xs text-ink-500">Expired on release</dt>
-            <dd className="font-bold">{money.format(s.wastedValue)}</dd>
+          <div
+            role="progressbar"
+            aria-label="Portions sold"
+            aria-valuemin={0}
+            aria-valuemax={s.portionsPlanned}
+            aria-valuenow={s.portionsSold}
+            className="mt-1.5 h-3 overflow-hidden rounded-full bg-ink-100"
+          >
+            <div
+              className="h-full rounded-full bg-brand-500 transition-[width] duration-500"
+              style={{
+                width: `${s.portionsPlanned ? (s.portionsSold / s.portionsPlanned) * 100 : 0}%`,
+              }}
+            />
           </div>
-        </dl>
-      )}
+        </div>
+        {s.status === 'ACTIVE' ? (
+          <div className="mt-4 flex gap-2">
+            <button
+              className="btn-primary h-14 flex-1 text-lg"
+              disabled={busy || remaining === 0}
+              onClick={onSell}
+              aria-label={`Add one sold: ${s.name}`}
+            >
+              <Plus className="h-6 w-6" aria-hidden /> 1 sold
+            </button>
+            <button className="btn-secondary h-14" disabled={busy} onClick={onEnd}>
+              End special
+            </button>
+          </div>
+        ) : (
+          <dl className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-raised p-3 text-sm">
+            <div>
+              <dt className="text-xs text-ink-500">Saved</dt>
+              <dd className="money text-lg text-brand-700">{money.format(s.savedValue)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-500">Expired on release</dt>
+              <dd className="money text-lg">{money.format(s.wastedValue)}</dd>
+            </div>
+          </dl>
+        )}
+      </div>
     </li>
   );
 }

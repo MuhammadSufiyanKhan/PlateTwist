@@ -1,3 +1,5 @@
+import { SaveRing } from '../components/SaveRing';
+import { useTheme } from '../lib/theme';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -13,14 +15,7 @@ import {
   YAxis,
 } from 'recharts';
 import { api } from '../api/endpoints';
-import {
-  EmptyState,
-  ErrorState,
-  PageHeader,
-  QueryState,
-  Stat,
-  UrgencyBadge,
-} from '../components/ui';
+import { EmptyState, ErrorState, PageHeader, QueryState, UrgencyBadge } from '../components/ui';
 import { useDashboard } from '../hooks/useData';
 import { useAuth } from '../lib/auth';
 import { daysLabel, pct, qtyLabel } from '../lib/format';
@@ -35,6 +30,15 @@ export function DashboardPage() {
     mutationFn: api.loadDemo,
     onSuccess: () => void qc.invalidateQueries(),
   });
+  const { resolved } = useTheme();
+  const dark = resolved === 'dark';
+  const C = {
+    saved: dark ? '#3DDC97' : '#0B7A4B',
+    wasted: dark ? '#FF9A57' : '#C2410C',
+    line: dark ? '#E8F0EC' : '#0F1B17',
+    grid: dark ? '#25332D' : '#D7DFDB',
+    axis: dark ? '#8EA399' : '#586A62',
+  };
   const outletName = (id: string) => outlets.find((o) => o.id === id)?.name ?? 'Outlet';
 
   return (
@@ -74,7 +78,7 @@ export function DashboardPage() {
                   key={d}
                   aria-pressed={windowDays === d}
                   onClick={() => setWindowDays(d)}
-                  className={`min-h-[44px] px-4 text-sm font-semibold ${windowDays === d ? 'bg-brand-600 text-white' : 'bg-white text-ink-700'}`}
+                  className={`min-h-[44px] px-4 text-sm font-semibold ${windowDays === d ? 'bg-brand-600 text-white' : 'bg-surface text-ink-700'}`}
                 >
                   {d} days
                 </button>
@@ -89,26 +93,35 @@ export function DashboardPage() {
           const hasData = d.trend.length > 0 || w.saved + w.wasted > 0;
           return (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                <Stat
-                  label={`Saved · ${windowDays}d`}
-                  value={money.format(w.saved)}
-                  tone="good"
-                  sub="Stock cost sold as specials"
+              <section
+                className="card relative overflow-hidden p-5 sm:p-6"
+                aria-label="Savings summary"
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-label/20 blur-3xl dark:bg-label/10"
                 />
-                <Stat
-                  label={`Wasted · ${windowDays}d`}
-                  value={money.format(w.wasted)}
-                  tone="bad"
-                  sub="Expired or logged as waste"
-                />
-                <Stat label="Save rate" value={pct(w.saveRate)} sub="saved ÷ (saved + wasted)" />
-                <Stat
-                  label={`Margin from specials · ${windowDays}d`}
-                  value={money.format(w.marginEarned)}
-                  sub="Sales minus portion cost"
-                />
-              </div>
+                <div className="relative flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-10">
+                  <SaveRing rate={w.saveRate} />
+                  <dl className="grid w-full flex-1 grid-cols-2 gap-x-6 gap-y-4">
+                    <div className="col-span-2">
+                      <dt className="text-sm font-medium text-ink-500">
+                        Saved in the last {windowDays} days
+                      </dt>
+                      <dd className="money text-5xl text-brand-700">{money.format(w.saved)}</dd>
+                      <p className="text-xs text-ink-500">Cost of stock sold as specials</p>
+                    </div>
+                    <div>
+                      <dt className="text-sm font-medium text-ink-500">Still wasted</dt>
+                      <dd className="money text-2xl text-danger">{money.format(w.wasted)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-sm font-medium text-ink-500">Margin from specials</dt>
+                      <dd className="money text-2xl">{money.format(w.marginEarned)}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </section>
 
               {!hasData ? (
                 <EmptyState title="No history yet">
@@ -152,13 +165,14 @@ export function DashboardPage() {
                           wastedMajor: money.toMajor(t.wasted),
                         }))}
                       >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e8eeea" />
+                        <CartesianGrid strokeDasharray="3 3" stroke={C.grid} />
                         <XAxis
                           dataKey="week"
                           tickFormatter={(v: string) => v.slice(5)}
                           fontSize={12}
+                          stroke={C.axis}
                         />
-                        <YAxis yAxisId="l" fontSize={12} width={48} />
+                        <YAxis yAxisId="l" fontSize={12} width={48} stroke={C.axis} />
                         <YAxis
                           yAxisId="r"
                           orientation="right"
@@ -166,8 +180,16 @@ export function DashboardPage() {
                           unit="%"
                           fontSize={12}
                           width={40}
+                          stroke={C.axis}
                         />
                         <Tooltip
+                          contentStyle={{
+                            background: dark ? '#131C19' : '#fff',
+                            border: `1px solid ${C.grid}`,
+                            borderRadius: 12,
+                            color: C.line,
+                          }}
+                          labelStyle={{ color: C.line }}
                           formatter={(v: number, n: string) =>
                             n === 'Save rate'
                               ? `${v}%`
@@ -175,19 +197,19 @@ export function DashboardPage() {
                           }
                           labelFormatter={(l: string) => `Week of ${l}`}
                         />
-                        <Legend />
+                        <Legend wrapperStyle={{ color: C.axis }} />
                         <Bar
                           yAxisId="l"
                           dataKey="savedMajor"
                           name="Saved"
-                          fill="#1e7e4e"
+                          fill={C.saved}
                           radius={[3, 3, 0, 0]}
                         />
                         <Bar
                           yAxisId="l"
                           dataKey="wastedMajor"
                           name="Wasted"
-                          fill="#c2410c"
+                          fill={C.wasted}
                           radius={[3, 3, 0, 0]}
                         />
                         <Line
@@ -195,7 +217,7 @@ export function DashboardPage() {
                           type="monotone"
                           dataKey="saveRate"
                           name="Save rate"
-                          stroke="#14201a"
+                          stroke={C.line}
                           strokeWidth={2}
                           strokeDasharray="5 3"
                           dot={{ r: 3 }}
@@ -258,7 +280,7 @@ export function DashboardPage() {
                             </div>
                             <div className="mt-1 h-2 rounded bg-ink-100" aria-hidden>
                               <div
-                                className="h-2 rounded bg-orange-700"
+                                className="h-2 rounded bg-warn"
                                 style={{ width: `${(t.valueWasted / max) * 100}%` }}
                               />
                             </div>

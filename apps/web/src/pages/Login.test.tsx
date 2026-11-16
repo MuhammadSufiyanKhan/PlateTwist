@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../lib/auth';
+import { ThemeProvider } from '../lib/theme';
 import { AuthPage } from './Login';
 
 const wrap = () =>
@@ -11,11 +12,13 @@ const wrap = () =>
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter>
-        <AuthProvider>
-          <AuthPage mode="login" />
-        </AuthProvider>
-      </MemoryRouter>
+      <ThemeProvider>
+        <MemoryRouter>
+          <AuthProvider>
+            <AuthPage mode="login" />
+          </AuthProvider>
+        </MemoryRouter>
+      </ThemeProvider>
     </QueryClientProvider>,
   );
 
@@ -26,7 +29,7 @@ describe('login page', () => {
     wrap();
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
-    expect(screen.getByText(/not a food-safety system/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/not a food-safety system/i).length).toBeGreaterThan(0);
   });
   it('shows the server error message on failed login', async () => {
     vi.stubGlobal(

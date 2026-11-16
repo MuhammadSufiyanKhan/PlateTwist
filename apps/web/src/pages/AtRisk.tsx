@@ -77,43 +77,45 @@ export function AtRiskPage() {
         {(d) => (
           <ul className="space-y-2" aria-label="At-risk batches">
             {d.items.map((r, i) => (
-              <li key={r.batchId} className="card p-3 sm:p-4">
-                <div className="flex items-center gap-3">
-                  <input
-                    id={`sel-${r.batchId}`}
-                    type="checkbox"
-                    className="h-5 w-5 shrink-0 accent-brand-600"
-                    checked={chosen.includes(r.batchId)}
-                    onChange={() => toggle(r.batchId)}
-                    aria-label={`Include ${r.ingredientName} in suggestions`}
-                  />
-                  <span
-                    className="w-5 shrink-0 text-center text-sm font-bold text-ink-500"
-                    aria-label={`Rank ${i + 1}`}
-                  >
-                    {i + 1}
-                  </span>
-                  <p className="min-w-0 flex-1 font-semibold">{r.ingredientName}</p>
-                  <UrgencyBadge urgency={r.urgency} />
-                  <div className="hidden text-right sm:block">
-                    <p className="text-lg font-bold">{money.format(r.valueAtRisk)}</p>
-                    <p className="text-xs text-ink-500">
-                      at risk · stock {money.format(r.stockValue)}
-                    </p>
-                  </div>
+              <li key={r.batchId} className="ticket">
+                <div className="ticket-stub p-0">
+                  <UrgencyBadge urgency={r.urgency} stub />
                 </div>
-                <div className="mt-2 flex items-end justify-between gap-3 pl-[3.25rem]">
-                  <p className="text-sm text-ink-500">
-                    {qtyLabel(r.qtyRemaining, r.baseUnit)} free
-                    {r.qtyAllocated > 0 &&
-                      ` · ${qtyLabel(r.qtyAllocated, r.baseUnit)} in specials`}{' '}
-                    · {r.dateType === 'USE_BY' ? 'Use by' : 'Best before'} {r.expiresOn} (
-                    {daysLabel(r.daysLeft)})
-                  </p>
-                  <p className="shrink-0 text-right sm:hidden">
-                    <span className="block text-lg font-bold">{money.format(r.valueAtRisk)}</span>
-                    <span className="block text-xs text-ink-500">at risk</span>
-                  </p>
+                <div className="ticket-body">
+                  <div className="flex items-start gap-3">
+                    <input
+                      id={`sel-${r.batchId}`}
+                      type="checkbox"
+                      className="mt-1 h-5 w-5 shrink-0 accent-brand-600"
+                      checked={chosen.includes(r.batchId)}
+                      onChange={() => toggle(r.batchId)}
+                      aria-label={`Include ${r.ingredientName} in suggestions`}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-display text-lg font-bold leading-tight">
+                        <span
+                          className="mr-2 text-sm font-semibold text-ink-500"
+                          aria-label={`Rank ${i + 1}`}
+                        >
+                          #{i + 1}
+                        </span>
+                        {r.ingredientName}
+                      </p>
+                      <p className="mt-0.5 text-sm text-ink-500">
+                        {qtyLabel(r.qtyRemaining, r.baseUnit)} free
+                        {r.qtyAllocated > 0 &&
+                          `, ${qtyLabel(r.qtyAllocated, r.baseUnit)} in specials`}
+                        . {r.dateType === 'USE_BY' ? 'Use by' : 'Best before'} {r.expiresOn} (
+                        {daysLabel(r.daysLeft)})
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="money text-xl">{money.format(r.valueAtRisk)}</p>
+                      <p className="text-xs text-ink-500">
+                        at risk · stock {money.format(r.stockValue)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </li>
             ))}
@@ -138,10 +140,7 @@ export function AtRiskPage() {
             Suggested specials
           </h2>
           {suggest.data.fallback && (
-            <p
-              role="status"
-              className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
-            >
+            <p role="status" className="alert-warn mb-3">
               The hosted AI service did not respond, so these ideas come from the built-in generator
               instead.
             </p>
